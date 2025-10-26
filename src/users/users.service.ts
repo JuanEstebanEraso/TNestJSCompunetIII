@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -27,8 +28,14 @@ export class UsersService {
         throw new ConflictException(`El nombre de usuario '${createUserDto.username}' ya está en uso`);
       }
 
+      // Hash password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+
       const user = this.userRepository.create({
-        ...createUserDto,
+        username: createUserDto.username,
+        password: hashedPassword,
+        role: createUserDto.role ?? 'user',
         balance: createUserDto.balance ?? 10000,
       });
 
