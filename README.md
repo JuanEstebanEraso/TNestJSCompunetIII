@@ -36,11 +36,27 @@ JWT_SECRET=tu_secret_key_super_segura
 
 ## Base de Datos
 
+### Opción 1: PostgreSQL Local (con Docker)
+
 Inicia PostgreSQL usando Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
+
+### Opción 2: PostgreSQL en Render
+
+Si usas una base de datos en Render, configura las variables de entorno en `.env`:
+
+```env
+DB_HOST=dpg-xxxxx.render.com
+DB_PORT=5432
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_password
+DB_NAME=tu_database
+```
+
+**Nota:** La base de datos de Render requiere SSL (ya está configurado en el código).
 
 ## Ejecutar la aplicación
 
@@ -52,6 +68,30 @@ npm run start:dev
 npm run build
 npm run start:prod
 ```
+
+## Datos de Prueba (Seed)
+
+El proyecto incluye un sistema de seed para poblar la base de datos con datos de prueba.
+
+### Ejecutar el Seed
+
+```bash
+npm run seed
+```
+
+### Limpiar Datos
+
+```bash
+npm run seed:clear
+```
+
+**Nota:** El servidor debe estar corriendo antes de ejecutar los scripts de seed.
+
+### Datos Incluidos
+
+- **Usuarios:** admin, usuario1, usuario2, usuario3 (contraseña: `password123`)
+- **Eventos:** 6 eventos deportivos con opciones
+- **Apuestas:** 8 apuestas de ejemplo
 
 ## Autenticación y Autorización
 

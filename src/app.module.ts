@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { EventsModule } from './events/events.module';
 import { BetsModule } from './bets/bets.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -19,12 +20,18 @@ import { BetsModule } from './bets/bets.module';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       autoLoadEntities: true,
-      synchronize: true, // Solo en desarrollo, en producción usar migraciones
+      synchronize: true, 
+      ssl: process.env.DB_HOST?.includes('render.com')
+        ? {
+            rejectUnauthorized: false,
+          }
+        : false,
     }),
     AuthModule,
     UsersModule,
     EventsModule,
     BetsModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
