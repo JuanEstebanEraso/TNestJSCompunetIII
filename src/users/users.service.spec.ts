@@ -68,10 +68,11 @@ describe('UsersService', () => {
   });
 
   describe('getUserBalance', () => {
-    it('should return numeric balance', async () => {
+    it('should return balance object with numeric value', async () => {
       mockRepo.findOne.mockResolvedValue({ id: '1', balance: '123' });
       const res = await service.getUserBalance('1');
-      expect(res).toBe(123);
+      expect(res).toEqual({ balance: 123 });
+      expect(res.balance).toBe(123);
     });
   });
 
