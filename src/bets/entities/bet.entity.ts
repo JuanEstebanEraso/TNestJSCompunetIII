@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../auth/entities/user.entity';
 import { Event } from '../../events/entities/event.entity';
 
 export enum BetStatus {

@@ -8,16 +8,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  ParseUUIDPipe,
-  UseGuards
+  ParseUUIDPipe
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/enums/roles.enum';
 
 @ApiTags('Users')
 @Controller('users')
@@ -35,8 +33,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener todos los usuarios (Solo Admin)' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios.' })
@@ -47,7 +44,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener un usuario por ID' })
   @ApiParam({ name: 'id', description: 'UUID del usuario' })
@@ -59,7 +56,7 @@ export class UsersController {
   }
 
   @Get(':id/balance')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener el balance de un usuario' })
   @ApiParam({ name: 'id', description: 'UUID del usuario' })
@@ -71,8 +68,7 @@ export class UsersController {
   }
 
   @Get('username/:username')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Buscar usuario por nombre de usuario (Solo Admin)' })
   @ApiParam({ name: 'username', description: 'Nombre de usuario' })
@@ -85,7 +81,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Actualizar un usuario' })
   @ApiParam({ name: 'id', description: 'UUID del usuario' })
@@ -101,8 +97,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Eliminar un usuario (Solo Admin)' })

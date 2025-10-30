@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { Event } from '../events/entities/event.entity';
 import { EventOption } from '../events/entities/event-option.entity';
 import { Bet } from '../bets/entities/bet.entity';
@@ -53,12 +53,12 @@ export class SeedService {
         const user = this.userRepository.create({
           username: userData.username,
           password: hashedPassword,
-          role: userData.role,
+          roles: userData.roles,
           balance: userData.balance,
           isActive: userData.isActive,
         });
         await this.userRepository.save(user);
-        console.log(`✅ Usuario creado: ${user.username}`);
+        console.log(`✅ Usuario creado: ${user.username} [${userData.roles.join(', ')}]`);
       } else {
         console.log(`⏭️  Usuario ya existe: ${userData.username}`);
       }
@@ -136,12 +136,22 @@ export class SeedService {
   async clearAll() {
     try {
       console.log('🗑️  Limpiando datos...');
-      await this.betRepository.delete({});
-      await this.eventOptionRepository.delete({});
-      await this.eventRepository.delete({});
-      await this.userRepository.delete({});
-      console.log('✅ Datos limpiados exitosamente');
-      return { message: 'Datos limpiados exitosamente' };
+      
+      // Deshabilitar temporalmente las foreign keys y limpiar todas las tablas
+      await this.betRepository.query('TRUNCATE TABLE bets CASCADE');
+      console.log('   ✅ Apuestas eliminadas');
+      
+      await this.eventOptionRepository.query('TRUNCATE TABLE event_options CASCADE');
+      console.log('   ✅ Opciones de eventos eliminadas');
+      
+      await this.eventRepository.query('TRUNCATE TABLE events CASCADE');
+      console.log('   ✅ Eventos eliminados');
+      
+      await this.userRepository.query('TRUNCATE TABLE users CASCADE');
+      console.log('   ✅ Usuarios eliminados');
+      
+      console.log('✅ Todos los datos limpiados exitosamente');
+      return { message: 'Todos los datos limpiados exitosamente' };
     } catch (error) {
       console.error('❌ Error al limpiar datos:', error);
       throw error;

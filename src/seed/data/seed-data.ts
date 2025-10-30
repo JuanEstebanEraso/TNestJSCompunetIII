@@ -5,25 +5,25 @@ export const seedData = {
   users: [
     {
       username: 'admin',
-      role: 'admin',
+      roles: ['admin', 'user'],
       balance: 50000,
       isActive: true,
     },
     {
       username: 'usuario1',
-      role: 'user',
+      roles: ['user'],
       balance: 15000,
       isActive: true,
     },
     {
       username: 'usuario2',
-      role: 'user',
+      roles: ['user'],
       balance: 8000,
       isActive: true,
     },
     {
       username: 'usuario3',
-      role: 'user',
+      roles: ['user'],
       balance: 12000,
       isActive: true,
     },
@@ -165,4 +165,3 @@ export const seedData = {
     },
   ],
 };
-

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SeedController } from './seed.controller';
 import { SeedService } from './seed.service';
-import { User } from '../users/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { Event } from '../events/entities/event.entity';
 import { EventOption } from '../events/entities/event-option.entity';
 import { Bet } from '../bets/entities/bet.entity';

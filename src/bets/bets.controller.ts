@@ -8,14 +8,12 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BetsService } from './bets.service';
 import { CreateBetDto } from './dto/create-bet.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/enums/roles.enum';
 
 @ApiTags('Bets')
 @Controller('bets')
@@ -23,7 +21,7 @@ export class BetsController {
   constructor(private readonly betsService: BetsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Crear una nueva apuesta' })
@@ -36,8 +34,7 @@ export class BetsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener todas las apuestas (Solo Admin)' })
   @ApiResponse({ status: 200, description: 'Lista de apuestas.' })
@@ -48,7 +45,7 @@ export class BetsController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener una apuesta por ID' })
   @ApiParam({ name: 'id', description: 'UUID de la apuesta' })
@@ -60,7 +57,7 @@ export class BetsController {
   }
 
   @Get('user/:userId')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener todas las apuestas de un usuario' })
   @ApiParam({ name: 'userId', description: 'UUID del usuario' })
@@ -71,7 +68,7 @@ export class BetsController {
   }
 
   @Get('user/:userId/stats')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener estadísticas de apuestas de un usuario' })
   @ApiParam({ name: 'userId', description: 'UUID del usuario' })
@@ -82,7 +79,7 @@ export class BetsController {
   }
 
   @Get('event/:eventId')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener todas las apuestas de un evento' })
   @ApiParam({ name: 'eventId', description: 'UUID del evento' })
@@ -93,8 +90,7 @@ export class BetsController {
   }
 
   @Post('event/:eventId/process')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Procesar apuestas de un evento (Solo Admin)' })
@@ -109,7 +105,7 @@ export class BetsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Eliminar una apuesta' })

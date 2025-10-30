@@ -1,38 +1,43 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsersService } from '../../users/users.service';
-
-export interface JwtPayload {
-  sub: string;
-  username: string;
-  role: string;
-}
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { User } from '../entities/user.entity';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly usersService: UsersService) {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService,
+  ) {
     super({
+      secretOrKey: configService.get('JWT_SECRET') as string,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
     });
   }
 
-  async validate(payload: JwtPayload) {
-    const user = await this.usersService.findOne(payload.sub);
+  async validate(payload: JwtPayload): Promise<User> {
+    const { id } = payload;
     
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
     if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
+      throw new UnauthorizedException('Token no válido');
     }
 
-    // Ensure the password is not exposed and attach a roles array for compatibility
-    if ((user as any).password) delete (user as any).password;
+    if (!user.isActive) {
+      throw new UnauthorizedException('Usuario inactivo');
+    }
 
-    const userObj: any = { ...user };
-    if (!userObj.roles) userObj.roles = userObj.role ? [userObj.role] : [];
+    delete user.password;
 
-    return userObj;
+    return user;
   }
 }
 

@@ -1,15 +1,24 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { 
+  Injectable, 
+  UnauthorizedException, 
+  ConflictException,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException 
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
+import { User } from './entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { JwtPayload } from './strategies/jwt.strategy';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger('AuthService');
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -17,68 +26,76 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { username: registerDto.username },
-    });
+    const { password, ...userData } = registerDto;
+    
+    try {
+      const user = this.userRepository.create({
+        ...userData,
+        password: this.encryptPassword(password),
+        roles: registerDto.roles ?? ['user'],
+      });
 
-    if (existingUser) {
-      throw new ConflictException('El nombre de usuario ya está en uso');
+      await this.userRepository.save(user);
+      delete user.password;
+
+      return {
+        ...user,
+        token: this.getJwtToken({ id: user.id, username: user.username }),
+      };
+    } catch (error) {
+      this.handleException(error);
     }
-
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
-
-    const user = this.userRepository.create({
-      username: registerDto.username,
-      password: hashedPassword,
-      role: registerDto.role ?? 'user',
-    });
-
-    const savedUser = await this.userRepository.save(user);
-
-    // No retornar la contraseña
-    const { password, ...result } = savedUser;
-    return result;
   }
 
   async login(loginDto: LoginDto) {
+    const { username, password } = loginDto;
+    
     const user = await this.userRepository.findOne({
-      where: { username: loginDto.username },
+      where: { username },
+      select: { 
+        id: true, 
+        username: true, 
+        password: true, 
+        roles: true, 
+        isActive: true,
+        balance: true 
+      },
     });
 
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException('Credenciales inválidas o cuenta inactiva');
+    if (!user) {
+      throw new NotFoundException(`Usuario ${username} no encontrado`);
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+    if (!user.isActive) {
+      throw new UnauthorizedException('Usuario inactivo');
     }
 
-    const payload: JwtPayload = {
-      sub: user.id,
-      username: user.username,
-      role: user.role,
-    };
+    if (!bcrypt.compareSync(password, user.password!)) {
+      throw new UnauthorizedException('Usuario o contraseña incorrectos');
+    }
 
-    const accessToken = this.jwtService.sign(payload);
+    delete user.password;
 
     return {
-      access_token: accessToken,
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        balance: user.balance,
-      },
+      ...user,
+      token: this.getJwtToken({ id: user.id, username: user.username }),
     };
   }
 
-  async validateUserById(userId: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { id: userId },
-    });
+  private encryptPassword(password: string): string {
+    return bcrypt.hashSync(password, 10);
+  }
+
+  private getJwtToken(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
+  }
+
+  private handleException(error: any): never {
+    this.logger.error(error);
+    if (error.code === '23505') {
+      throw new ConflictException('El nombre de usuario ya existe');
+    }
+    throw new InternalServerErrorException('Error al crear el usuario');
   }
 }
 

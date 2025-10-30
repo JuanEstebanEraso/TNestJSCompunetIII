@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from './entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -35,7 +35,7 @@ export class UsersService {
       const user = this.userRepository.create({
         username: createUserDto.username,
         password: hashedPassword,
-        role: createUserDto.role ?? 'user',
+        roles: createUserDto.roles ?? ['user'],
         balance: createUserDto.balance ?? 10000,
       });
 

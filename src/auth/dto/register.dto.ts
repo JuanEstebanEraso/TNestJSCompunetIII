@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsOptional } from 'class-validator';
+import { 
+  IsString, 
+  IsNotEmpty, 
+  MinLength, 
+  MaxLength, 
+  IsOptional, 
+  IsArray 
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -25,12 +32,15 @@ export class RegisterDto {
   password: string;
 
   @ApiPropertyOptional({
-    description: 'Rol del usuario (user o admin)',
-    example: 'user',
-    default: 'user',
+    description: 'Roles del usuario',
+    example: ['user'],
+    default: ['user'],
+    isArray: true,
+    enum: ['user', 'admin'],
   })
   @IsOptional()
-  @IsString()
-  role?: string;
+  @IsArray()
+  @IsString({ each: true })
+  roles?: string[];
 }
 

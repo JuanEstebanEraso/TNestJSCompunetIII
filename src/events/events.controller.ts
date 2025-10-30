@@ -9,16 +9,14 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { CloseEventDto } from './dto/close-event.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/enums/roles.enum';
 
 @ApiTags('Events')
 @Controller('events')
@@ -26,8 +24,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Crear un nuevo evento (Solo Admin)' })
@@ -40,7 +37,7 @@ export class EventsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Obtener todos los eventos' })
   @ApiResponse({ status: 200, description: 'Lista de eventos.' })
@@ -66,8 +63,7 @@ export class EventsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Actualizar un evento (Solo Admin)' })
   @ApiParam({ name: 'id', description: 'UUID del evento' })
@@ -84,8 +80,7 @@ export class EventsController {
   }
 
   @Post(':id/close')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Cerrar un evento con resultado (Solo Admin)' })
   @ApiParam({ name: 'id', description: 'UUID del evento' })
@@ -102,8 +97,7 @@ export class EventsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Auth(ValidRoles.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Eliminar un evento (Solo Admin)' })

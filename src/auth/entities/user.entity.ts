@@ -4,7 +4,9 @@ import {
   Column, 
   CreateDateColumn, 
   UpdateDateColumn,
-  OneToMany
+  OneToMany,
+  BeforeInsert,
+  BeforeUpdate
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Bet } from '../../bets/entities/bet.entity';
@@ -50,21 +52,22 @@ export class User {
   @Column({
     type: 'varchar',
     length: 255,
+    select: false,
   })
-  password: string;
+  password?: string;
 
   @ApiProperty({
-    description: 'Rol del usuario en el sistema',
-    example: 'user',
+    description: 'Roles del usuario en el sistema',
+    example: ['user'],
     enum: ['user', 'admin'],
-    default: 'user',
+    default: ['user'],
   })
   @Column({
-    type: 'varchar',
-    length: 20,
-    default: 'user',
+    type: 'text',
+    array: true,
+    default: ['user'],
   })
-  role: string;
+  roles: string[];
 
   @ApiProperty({
     description: 'Estado de activación del usuario',
@@ -97,5 +100,11 @@ export class User {
   })
   @OneToMany(() => Bet, (bet) => bet.user)
   bets: Bet[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  normalizeUsername() {
+    this.username = this.username.toLowerCase().trim();
+  }
 }
 
