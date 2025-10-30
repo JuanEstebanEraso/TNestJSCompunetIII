@@ -80,6 +80,7 @@ export class EventsController {
   }
 
   @Post(':id/close')
+  @HttpCode(HttpStatus.OK)
   @Auth(ValidRoles.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Cerrar un evento con resultado (Solo Admin)' })

@@ -114,8 +114,8 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async getUserBalance(id: string): Promise<number> {
+  async getUserBalance(id: string): Promise<{ balance: number }> {
     const user = await this.findOne(id);
-    return Number(user.balance);
+    return { balance: Number(user.balance) };
   }
 }

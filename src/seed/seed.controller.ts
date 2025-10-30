@@ -1,4 +1,4 @@
-import { Controller, Post, Delete } from '@nestjs/common';
+import { Controller, Post, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SeedService } from './seed.service';
 
@@ -8,6 +8,7 @@ export class SeedController {
   constructor(private readonly seedService: SeedService) {}
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Ejecutar seed de datos (poblar BD)' })
   @ApiResponse({ status: 200, description: 'Seed ejecutado exitosamente.' })
   @ApiResponse({ status: 500, description: 'Error al ejecutar seed.' })
