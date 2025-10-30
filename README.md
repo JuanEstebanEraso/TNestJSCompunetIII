@@ -78,8 +78,7 @@ npm run start:prod
 bun run test:cov
 
 # e2e tests
-npm run build
-npm run start:prod
+bun run test:e2e:cov
 ```
 
 ## Datos de Prueba (Seed)
