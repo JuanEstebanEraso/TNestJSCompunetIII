@@ -24,7 +24,7 @@ jobs:
         run: npm run build
       - name: Unit tests with coverage (Jest)
         id: unit
-        run: npm run test:cov
+        run: npm run test:cov -- --coverageReporters=text --coverageReporters=lcov --coverageReporters=json-summary
         env:
           CI: true
       - name: Enforce coverage >= 80% (statements)
