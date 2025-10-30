@@ -15,26 +15,6 @@ Sistema de apuestas deportivas con autenticación JWT y autorización basada en 
 npm install
 ```
 
-## Configuración
-
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
-
-```env
-# Database Configuration
-DB_HOST=tu_host_de_base_de_datos
-DB_PORT=5432
-DB_NAME=nombre_de_tu_base_de_datos
-DB_USERNAME=tu_usuario
-DB_PASSWORD=tu_contraseña
-
-# Application
-PORT=3000
-
-# JWT Configuration
-JWT_SECRET=tu_clave_secreta_super_segura_cambiala_en_produccion
-JWT_EXPIRES_IN=1d
-```
-
 ## Base de Datos
 
 ### Usando PostgreSQL en la Nube (ej. Render, AWS, etc.)
