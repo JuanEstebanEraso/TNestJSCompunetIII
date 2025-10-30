@@ -25,22 +25,17 @@ export class SeedService {
 
   async seedAll() {
     try {
-      console.log('🌱 Iniciando seed de datos...');
-
       await this.seedUsers();
       await this.seedEvents();
       await this.seedBets();
 
-      console.log('✅ Seed completado exitosamente');
       return { message: 'Seed completado exitosamente' };
     } catch (error) {
-      console.error('❌ Error durante el seed:', error);
       throw error;
     }
   }
 
   async seedUsers() {
-    console.log('📝 Seeding usuarios...');
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash('password123', saltRounds);
 
@@ -58,16 +53,11 @@ export class SeedService {
           isActive: userData.isActive,
         });
         await this.userRepository.save(user);
-        console.log(`✅ Usuario creado: ${user.username} [${userData.roles.join(', ')}]`);
-      } else {
-        console.log(`⏭️  Usuario ya existe: ${userData.username}`);
       }
     }
   }
 
   async seedEvents() {
-    console.log('🎲 Seeding eventos...');
-
     for (const eventData of seedData.events) {
       const existingEvent = await this.eventRepository.findOne({
         where: { name: eventData.name },
@@ -80,7 +70,6 @@ export class SeedService {
           status: eventData.status,
         });
         const savedEvent = await this.eventRepository.save(event);
-        console.log(`✅ Evento creado: ${event.name}`);
 
         // Crear opciones del evento
         for (const optionData of eventData.options) {
@@ -90,22 +79,16 @@ export class SeedService {
             eventId: savedEvent.id,
           });
           await this.eventOptionRepository.save(option);
-          console.log(`  ➜ Opción creada: ${option.name} (${option.odds})`);
         }
-      } else {
-        console.log(`⏭️  Evento ya existe: ${eventData.name}`);
       }
     }
   }
 
   async seedBets() {
-    console.log('🎯 Seeding apuestas...');
-
     const users = await this.userRepository.find();
     const events = await this.eventRepository.find({ relations: ['options'] });
 
     if (users.length === 0 || events.length === 0) {
-      console.log('⏭️  No hay usuarios o eventos para crear apuestas');
       return;
     }
 
@@ -127,7 +110,6 @@ export class SeedService {
             eventId: event.id,
           });
           await this.betRepository.save(bet);
-          console.log(`✅ Apuesta creada: ${bet.selectedOption} - $${bet.amount}`);
         }
       }
     }
@@ -135,25 +117,13 @@ export class SeedService {
 
   async clearAll() {
     try {
-      console.log('🗑️  Limpiando datos...');
-      
-      // Deshabilitar temporalmente las foreign keys y limpiar todas las tablas
       await this.betRepository.query('TRUNCATE TABLE bets CASCADE');
-      console.log('   ✅ Apuestas eliminadas');
-      
       await this.eventOptionRepository.query('TRUNCATE TABLE event_options CASCADE');
-      console.log('   ✅ Opciones de eventos eliminadas');
-      
       await this.eventRepository.query('TRUNCATE TABLE events CASCADE');
-      console.log('   ✅ Eventos eliminados');
-      
       await this.userRepository.query('TRUNCATE TABLE users CASCADE');
-      console.log('   ✅ Usuarios eliminados');
       
-      console.log('✅ Todos los datos limpiados exitosamente');
       return { message: 'Todos los datos limpiados exitosamente' };
     } catch (error) {
-      console.error('❌ Error al limpiar datos:', error);
       throw error;
     }
   }

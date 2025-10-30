@@ -3,7 +3,6 @@ import {
   UnauthorizedException, 
   ConflictException,
   InternalServerErrorException,
-  Logger,
   NotFoundException 
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -17,8 +16,6 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-  private logger = new Logger('AuthService');
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -40,7 +37,7 @@ export class AuthService {
 
       return {
         ...user,
-        token: this.getJwtToken({ id: user.id, username: user.username }),
+        token: this.getJwtToken({ id: user.id, username: user.username, roles: user.roles }),
       };
     } catch (error) {
       this.handleException(error);
@@ -78,7 +75,7 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwtToken({ id: user.id, username: user.username }),
+      token: this.getJwtToken({ id: user.id, username: user.username, roles: user.roles }),
     };
   }
 
@@ -91,7 +88,6 @@ export class AuthService {
   }
 
   private handleException(error: any): never {
-    this.logger.error(error);
     if (error.code === '23505') {
       throw new ConflictException('El nombre de usuario ya existe');
     }
