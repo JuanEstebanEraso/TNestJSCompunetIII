@@ -26,12 +26,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    return { 
-      id: user.id, 
-      username: user.username, 
-      role: user.role,
-      balance: user.balance,
-    };
+    // Ensure the password is not exposed and attach a roles array for compatibility
+    if ((user as any).password) delete (user as any).password;
+
+    const userObj: any = { ...user };
+    if (!userObj.roles) userObj.roles = userObj.role ? [userObj.role] : [];
+
+    return userObj;
   }
 }
 
