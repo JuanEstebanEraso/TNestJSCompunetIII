@@ -71,6 +71,17 @@ npm run build
 npm run start:prod
 ```
 
+## Ejecutar los tests
+
+```bash
+# unit tests 
+bun run test:cov
+
+# e2e tests
+npm run build
+npm run start:prod
+```
+
 ## Datos de Prueba (Seed)
 
 El proyecto incluye un sistema de seed para poblar la base de datos con datos de prueba.
