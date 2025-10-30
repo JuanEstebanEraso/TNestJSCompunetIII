@@ -66,6 +66,12 @@ jobs:
       - name: Wait for Postgres
         run: |
           for i in {1..30}; do pg_isready -h localhost -p 5432 -U postgres && break; sleep 2; done
+      - name: Ensure JWT_SECRET for e2e (fallback)
+        run: |
+          if [ -z "${JWT_SECRET}" ]; then
+            echo "JWT_SECRET not set — using fallback for CI"
+            echo "JWT_SECRET=test_jwt_secret" >> $GITHUB_ENV
+          fi
       - name: Run e2e tests
         run: npm run test:e2e
 
