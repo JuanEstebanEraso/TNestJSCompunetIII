@@ -6,14 +6,40 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Configurar CORS
+  const allowedOrigins = [
+    'http://localhost:3001',
+    'http://localhost:3000',
+    'https://t-next-js-compunet-iii.vercel.app',
+  ];
+
+  // Agregar URL del frontend desde variable de entorno si existe
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+
   app.enableCors({
-    origin: [
-      'http://localhost:3001',
-      'http://localhost:3000',
-      'https://t-next-js-compunet-iii.vercel.app',
-      process.env.FRONTEND_URL || 'http://localhost:3001',
-    ],
+    origin: (origin, callback) => {
+      // Permitir requests sin origin (como Postman, mobile apps, etc.)
+      if (!origin) return callback(null, true);
+      
+      // Permitir si está en la lista de orígenes permitidos
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Permitir todos los dominios de Vercel (preview deployments, etc.)
+      if (origin.includes('.vercel.app')) {
+        return callback(null, true);
+      }
+      
+      // En desarrollo, permitir todos los orígenes
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      
+      // En producción, rechazar orígenes no permitidos
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
