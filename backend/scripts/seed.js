@@ -52,7 +52,7 @@ function runSeed(clear = false) {
     if (error) {
       console.error('❌ Error:', error.message);
       console.error('\n💡 Asegúrate de que el servidor esté corriendo:');
-      console.error('   npm run start:dev');
+      console.error('   bun run start:dev');
       process.exit(1);
     }
 
