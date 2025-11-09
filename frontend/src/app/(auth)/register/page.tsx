@@ -13,19 +13,13 @@ export default function RegisterPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(/football-field.jpg)',
+            backgroundImage: 'url(/images/backgrounds/Fans.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
           {/* Overlay oscuro para mejor contraste */}
           <div className="absolute inset-0 bg-black/40"></div>
-        </div>
-        {/* Aquí puedes colocar tu imagen de campo de fútbol */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-white text-center z-10">
-            <p className="text-lg opacity-80">Join the Community</p>
-          </div>
         </div>
       </div>
     </div>

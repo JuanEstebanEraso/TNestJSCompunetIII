@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { authService } from '@/app/services/auth/auth.service';
 import { RegisterDto } from '@/app/interfaces/auth.interface';
 
@@ -28,17 +29,17 @@ export default function RegisterForm() {
 
     // Validaciones
     if (formData.username.length < 3) {
-      setError('Username must be at least 3 characters long');
+      setError('El nombre de usuario debe tener al menos 3 caracteres');
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     if (formData.password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Las contraseñas no coinciden');
       return;
     }
 
@@ -56,27 +57,31 @@ export default function RegisterForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* Icono de balón - aquí puedes colocar tu icono */}
       <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-          {/* Icono de balón aquí */}
-          <span className="text-2xl">⚽</span>
+        <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center p-3">
+          <Image
+            src="/images/icons/FootballIcon.png"
+            alt="Footballers Bets Logo"
+            width={88}
+            height={88}
+            className="object-contain"
+          />
         </div>
       </div>
 
       {/* Título */}
-      <h1 className="text-3xl font-bold text-[#F5F5F5] text-center mb-2">
-        Join the Football Community
+      <h1 className="text-3xl font-bold text-text-light text-center mb-2">
+        Únete a Footballers Bets!
       </h1>
-      <p className="text-[#F5F5F5] text-center mb-8 opacity-90">
-        Create your account to get started
+      <p className="text-text-light text-center mb-8 opacity-90">
+        Crea tu cuenta para comenzar
       </p>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-[#F5F5F5] mb-2 text-sm font-medium">
-            Sign Up With Email
+          <label className="block text-text-light mb-2 text-sm font-medium">
+            Registrarse con Email
           </label>
           
           <input
@@ -84,11 +89,11 @@ export default function RegisterForm() {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            placeholder="Enter your username"
+            placeholder="Ingresa tu nombre de usuario"
             required
             minLength={3}
             maxLength={100}
-            className="w-full bg-[#2C2C2C] text-[#F5F5F5] py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-transparent placeholder:text-gray-500"
+            className="w-full bg-neutral-medium text-text-light py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-gray-500"
           />
         </div>
 
@@ -98,10 +103,10 @@ export default function RegisterForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder="Ingresa tu contraseña"
             required
             minLength={6}
-            className="w-full bg-[#2C2C2C] text-[#F5F5F5] py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-transparent placeholder:text-gray-500"
+            className="w-full bg-neutral-medium text-text-light py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-gray-500"
           />
         </div>
 
@@ -111,10 +116,10 @@ export default function RegisterForm() {
             name="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm your password"
+            placeholder="Confirma tu contraseña"
             required
             minLength={6}
-            className="w-full bg-[#2C2C2C] text-[#F5F5F5] py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-transparent placeholder:text-gray-500"
+            className="w-full bg-neutral-medium text-text-light py-3 px-4 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-gray-500"
           />
         </div>
 
@@ -129,17 +134,17 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-[#1DB954] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#1ed760] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#1ed760] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Creating account...' : 'Sign Up'}
+          {isLoading ? 'Creando cuenta...' : 'Registrarse'}
         </button>
       </form>
 
       {/* Link a Login */}
-      <p className="text-center text-[#F5F5F5] mt-6 text-sm">
-        Already have an Account?{' '}
-        <a href="/login" className="text-[#1DB954] hover:underline font-semibold">
-          Sign In
+      <p className="text-center text-text-light mt-6 text-sm">
+        ¿Ya tienes una cuenta?{' '}
+        <a href="/login" className="text-primary hover:underline font-semibold">
+          Iniciar Sesión
         </a>
       </p>
     </div>
