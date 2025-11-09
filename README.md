@@ -12,7 +12,7 @@ Sistema de apuestas deportivas con autenticación JWT y autorización basada en 
 ## Instalación
 
 ```bash
-npm install
+bun install
 ```
 
 ## Base de Datos
@@ -44,11 +44,11 @@ DB_NAME=sports_bet_db
 
 ```bash
 # Desarrollo
-npm run start:dev
+bun run start:dev
 
 # Producción
-npm run build
-npm run start:prod
+bun run build
+bun run start:prod
 ```
 
 ## Ejecutar los tests
@@ -68,13 +68,13 @@ El proyecto incluye un sistema de seed para poblar la base de datos con datos de
 ### Ejecutar el Seed
 
 ```bash
-npm run seed
+bun run seed
 ```
 
 ### Limpiar Datos
 
 ```bash
-npm run seed:clear
+bun run seed:clear
 ```
 
 **Nota:** El servidor debe estar corriendo antes de ejecutar los scripts de seed.

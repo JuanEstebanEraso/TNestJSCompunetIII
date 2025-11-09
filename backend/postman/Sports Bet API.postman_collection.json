@@ -1,0 +1,1138 @@
+{
+	"info": {
+		"_postman_id": "138dd7f9-199f-4a84-a556-af4058d3aff1",
+		"name": "Sports Bet API",
+		"description": "API para sistema de apuestas deportivas ficticias - Tests con datos dinámicos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35087800",
+		"_collection_link": "https://compunet2-7762.postman.co/workspace/Compunett3~5b4f6edd-a5ae-4044-8b4b-4c203403e7bb/collection/35087800-138dd7f9-199f-4a84-a556-af4058d3aff1?action=share&source=collection_link&creator=35087800"
+	},
+	"item": [
+		{
+			"name": "Seed",
+			"item": [
+				{
+					"name": "Clear Database",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/seed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"seed"
+							]
+						},
+						"description": "Limpia toda la base de datos. Ejecuta esto primero para empezar desde cero."
+					},
+					"response": []
+				},
+				{
+					"name": "Execute Seed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed executed successfully', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/seed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"seed"
+							]
+						},
+						"description": "Puebla la base de datos con datos de prueba (admin, usuarios, eventos, apuestas)."
+					},
+					"response": []
+				}
+			],
+			"description": "Ejecuta estos endpoints primero: 1) Clear Database, 2) Execute Seed"
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('adminToken', response.token);",
+									"    pm.test('Admin login successful', () => {",
+									"        pm.expect(response).to.have.property('token');",
+									"        pm.expect(response.roles).to.include('admin');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login con usuario admin del seed"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    pm.environment.set('userId', response.id);",
+									"    pm.test('Login successful', () => {",
+									"        pm.expect(response).to.have.property('token');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"usuario1\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login con usuario1 del seed"
+					},
+					"response": []
+				},
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('newUserToken', response.token);",
+									"    pm.environment.set('newUserId', response.id);",
+									"    pm.test('User registered successfully', () => {",
+									"        pm.expect(response).to.have.property('username');",
+									"        pm.expect(response).to.have.property('token');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user_{{$timestamp}}\",\n  \"password\": \"password123\",\n  \"roles\": [\"user\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registra un nuevo usuario con username dinámico (timestamp)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Get users successful', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const users = pm.response.json();",
+									"    pm.expect(users).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Lista todos los usuarios (requiere rol admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Obtiene usuario por ID (autenticado)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Balance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Balance retrieved', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('balance');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"balance"
+							]
+						},
+						"description": "Obtiene el balance del usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Find User by Username (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/username/usuario1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"username",
+								"usuario1"
+							]
+						},
+						"description": "Busca usuario por username (requiere admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('createdUserId', response.id);",
+									"    pm.test('User created successfully', () => {",
+									"        pm.expect(response).to.have.property('id');",
+									"        pm.expect(response).to.have.property('username');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"newuser_{{$randomInt}}\",\n  \"password\": \"password123\",\n  \"roles\": [\"user\"],\n  \"balance\": 5000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Crea un nuevo usuario con username aleatorio"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"balance\": 20000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Actualiza datos del usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Created User (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{createdUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{createdUserId}}"
+							]
+						},
+						"description": "Elimina el usuario creado dinámicamente"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Events",
+			"item": [
+				{
+					"name": "Get All Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const events = pm.response.json();",
+									"    if (events.length > 0) {",
+									"        // Buscar evento 'Final Liga Española' para usar con las apuestas",
+									"        const ligaEvent = events.find(e => e.name === 'Final Liga Española');",
+									"        if (ligaEvent) {",
+									"            pm.environment.set('eventId', ligaEvent.id);",
+									"        } else {",
+									"            pm.environment.set('eventId', events[0].id);",
+									"        }",
+									"    }",
+									"    pm.test('Events retrieved', () => {",
+									"        pm.expect(events).to.be.an('array');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events"
+							]
+						},
+						"description": "Lista todos los eventos y guarda el ID del evento 'Final Liga Española' en la variable {{eventId}} para usar en las apuestas. EJECUTA ESTO ANTES de crear apuestas."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Open Events (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/events/open",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"open"
+							]
+						},
+						"description": "Obtiene eventos abiertos (público, no requiere auth)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/events/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{eventId}}"
+							]
+						},
+						"description": "Obtiene un evento específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Event (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('newEventId', response.id);",
+									"    pm.test('Event created successfully', () => {",
+									"        pm.expect(response).to.have.property('id');",
+									"        pm.expect(response).to.have.property('name');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Partido Test {{$timestamp}}\",\n  \"description\": \"Evento de prueba\",\n  \"options\": [\n    {\n      \"name\": \"Equipo A\",\n      \"odds\": 2.5\n    },\n    {\n      \"name\": \"Empate\",\n      \"odds\": 3.0\n    },\n    {\n      \"name\": \"Equipo B\",\n      \"odds\": 2.2\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events"
+							]
+						},
+						"description": "Crea un nuevo evento con nombre dinámico (requiere admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Event (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Descripción actualizada\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/{{newEventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{newEventId}}"
+							]
+						},
+						"description": "Actualiza el evento creado"
+					},
+					"response": []
+				},
+				{
+					"name": "Close Event (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"finalResult\": \"Equipo A\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/{{newEventId}}/close",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{newEventId}}",
+								"close"
+							]
+						},
+						"description": "Cierra el evento con un resultado"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Event (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/{{newEventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{newEventId}}"
+							]
+						},
+						"description": "Elimina el evento creado"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bets",
+			"item": [
+				{
+					"name": "Create Test Event (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('testEventId', response.id);",
+									"    pm.test('Test event created successfully', () => {",
+									"        pm.expect(response).to.have.property('id');",
+									"        pm.expect(response).to.have.property('name');",
+									"        pm.expect(response.status).to.equal('open');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Bet Flow {{$timestamp}}\",\n  \"description\": \"Evento de prueba para flujo completo de apuestas\",\n  \"options\": [\n    {\n      \"name\": \"Opción Ganadora\",\n      \"odds\": 2.5\n    },\n    {\n      \"name\": \"Opción Perdedora\",\n      \"odds\": 3.0\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events"
+							]
+						},
+						"description": "Paso 1: Crea un evento de prueba. El ID se guarda en {{testEventId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bet on Test Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('testBetId', response.id);",
+									"    pm.test('Bet created successfully', () => {",
+									"        pm.expect(response).to.have.property('id');",
+									"        pm.expect(response.status).to.equal('pending');",
+									"        pm.expect(response.selectedOption).to.equal('Opción Ganadora');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"eventId\": \"{{testEventId}}\",\n  \"selectedOption\": \"Opción Ganadora\",\n  \"amount\": 500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets"
+							]
+						},
+						"description": "Paso 2: Crea una apuesta sobre el evento de prueba. El ID se guarda en {{testBetId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Bet Created",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Bet details correct', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const bet = pm.response.json();",
+									"    pm.expect(bet.status).to.equal('pending');",
+									"    pm.expect(bet.amount).to.equal('500.00');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/{{testBetId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"{{testBetId}}"
+							]
+						},
+						"description": "Paso 3: Verifica que la apuesta fue creada correctamente (estado: pending)"
+					},
+					"response": []
+				},
+				{
+					"name": "Close Test Event (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Event closed successfully', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const event = pm.response.json();",
+									"    pm.expect(event.status).to.equal('closed');",
+									"    pm.expect(event.finalResult).to.equal('Opción Ganadora');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"finalResult\": \"Opción Ganadora\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/{{testEventId}}/close",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{testEventId}}",
+								"close"
+							]
+						},
+						"description": "Paso 4: Cierra el evento con el resultado 'Opción Ganadora'. Las apuestas se procesan automáticamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Bet Won",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Bet status updated to won', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const bet = pm.response.json();",
+									"    pm.expect(bet.status).to.equal('won');",
+									"    pm.expect(parseFloat(bet.profit)).to.be.greaterThan(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/{{testBetId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"{{testBetId}}"
+							]
+						},
+						"description": "Paso 5: Verifica que la apuesta fue procesada y ganada (estado: won, profit > 0)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Updated User Balance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Balance increased', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('balance');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"balance"
+							]
+						},
+						"description": "Paso 6: Verifica que el balance del usuario aumentó con las ganancias"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Test Bet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Bet deleted successfully', () => {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/{{testBetId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"{{testBetId}}"
+							]
+						},
+						"description": "Paso 7: Elimina la apuesta de prueba"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Test Event (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Event deleted successfully', () => {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/{{testEventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"events",
+								"{{testEventId}}"
+							]
+						},
+						"description": "Paso 8 (FINAL): Elimina el evento de prueba. Cleanup completo."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Bets (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets"
+							]
+						},
+						"description": "Lista todas las apuestas del sistema (requiere admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bets by User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"user",
+								"{{userId}}"
+							]
+						},
+						"description": "Obtiene todas las apuestas de un usuario específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Bet Statistics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Stats retrieved', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const stats = pm.response.json();",
+									"    pm.expect(stats).to.have.property('totalBets');",
+									"    pm.expect(stats).to.have.property('wonBets');",
+									"    pm.expect(stats).to.have.property('lostBets');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/user/{{userId}}/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"user",
+								"{{userId}}",
+								"stats"
+							]
+						},
+						"description": "Obtiene estadísticas detalladas de apuestas del usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bets by Event",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bets/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bets",
+								"event",
+								"{{eventId}}"
+							]
+						},
+						"description": "Obtiene todas las apuestas de un evento específico"
+					},
+					"response": []
+				}
+			],
+			"description": "🎯 FLUJO COMPLETO DE APUESTAS\n\nEjecuta los requests en orden (1️⃣ → 8️⃣) para ver el ciclo completo:\n1. Crear evento de prueba\n2. Crear apuesta sobre ese evento\n3. Verificar apuesta creada\n4. Cerrar evento con resultado\n5. Verificar apuesta ganada\n6. Ver balance actualizado\n7. Eliminar apuesta\n8. Eliminar evento (cleanup)\n\nLos IDs se guardan automáticamente en variables de entorno."
+		}
+	]
+}
